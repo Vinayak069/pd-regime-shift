@@ -23,6 +23,13 @@ and applied to the 12-month PD as logit p12 + a. For small hazards, multiplying
 every monthly default hazard by e^a moves both cumulative PDs by about the same
 logit shift, which is what carries the correction from 3 to 12 months.
 
+With the monthly hazards available (hz = (hd, hp), one row per snapshot, months
+k = 0..11), the "_hz" modes apply the shift where the model makes it: every monthly
+default hazard becomes expit(logit hd_k + a), the survival path is recomputed with
+the prepayment hazards unchanged, and a is solved so that the recomputed 3-month
+PDs match the early outcomes. A shift that lifts the near-term hazards then raises
+the 12-month PD by more than the plain logit shift does when hazards rise with k.
+
 Drift-triggered recalibration uses the early correction only in months where a
 detector fires, and the static recalibration otherwise:
   trig_z    the early labels disagree with the model: |O - E| / sqrt(sum p(1 - p)) > z
@@ -116,6 +123,27 @@ def recalibrate(snaps: pd.DataFrame, test_months, method: str, mode: str, delay:
 
 
 EARLY_MODES = ["early", "trig_z", "trig_psi"]
+HZ_MODES = ["early_hz", "trig_z_hz"]
+
+
+def shifted_pd(hd: np.ndarray, hp: np.ndarray, a: float, horizon: int) -> np.ndarray:
+    """Cumulative default probability to `horizon` months after shifting every default hazard by a on the logit scale."""
+    h = expit(_z(hd[:, :horizon]) + a)
+    s = np.ones(len(hd))
+    pd_ = np.zeros(len(hd))
+    for k in range(horizon):
+        pd_ += s * h[:, k]
+        s = s * np.clip(1 - h[:, k] - hp[:, k], 0, 1)
+    return pd_
+
+
+def _hazard_shift(hd, hp, y) -> float:
+    from scipy.optimize import brentq
+    ok = ~np.isnan(y)
+    hd, hp, y = hd[ok], hp[ok], y[ok]
+    if len(y) == 0 or y.sum() == 0:
+        return 0.0
+    return float(brentq(lambda a: shifted_pd(hd, hp, a, 3).mean() - y.mean(), -10, 10))
 
 
 def _intercept(hist, p, y):
@@ -128,8 +156,11 @@ def _intercept(hist, p, y):
 
 def recalibrate_early(snaps: pd.DataFrame, test_months, mode: str, delay: int = 12, window: int = 12,
                       early_delay: int = 3, early_window: int = 6, z: float = 2.0, psi_max: float = 0.10,
-                      p="p", y="y", p_early="p3", y_early="y3") -> tuple[pd.Series, pd.DataFrame]:
-    """Recalibrated 12-month PDs for test_months, and a per-month log (shift, z, psi, fired)."""
+                      p="p", y="y", p_early="p3", y_early="y3",
+                      hz: tuple[np.ndarray, np.ndarray] | None = None) -> tuple[pd.Series, pd.DataFrame]:
+    """Recalibrated 12-month PDs for test_months, and a per-month log (shift, z, psi, fired).
+
+    For the _hz modes, hz holds the monthly hazards aligned with snaps' row positions."""
     from .drift import psi as _psi
     test_months = sorted(set(test_months))
     out = pd.Series(np.nan, index=snaps.index)
@@ -147,8 +178,14 @@ def recalibrate_early(snaps: pd.DataFrame, test_months, mode: str, delay: int = 
         pe = h[p_early].to_numpy(float)
         zstat = (h[y_early].sum() - pe.sum()) / np.sqrt(max((pe * (1 - pe)).sum(), 1e-12)) if len(h) else 0.0
         s_psi = _psi(ref[p], cur[p]) if len(ref) else np.nan
-        fired = {"early": True, "trig_z": abs(zstat) > z, "trig_psi": bool(s_psi > psi_max)}[mode]
-        a = _intercept(hist, p_early, y_early) if fired else a_static
-        out.loc[cur.index] = expit(_z(cur[p]) + a)
+        fired = {"early": True, "trig_z": abs(zstat) > z, "trig_psi": bool(s_psi > psi_max),
+                 "early_hz": True, "trig_z_hz": abs(zstat) > z}[mode]
+        if mode.endswith("_hz") and fired:
+            hi, ci = snaps.index.get_indexer(h.index), snaps.index.get_indexer(cur.index)
+            a = _hazard_shift(hz[0][hi], hz[1][hi], h[y_early].to_numpy(float))
+            out.loc[cur.index] = shifted_pd(hz[0][ci], hz[1][ci], a, 12)
+        else:
+            a = _intercept(hist, p_early, y_early) if fired else a_static
+            out.loc[cur.index] = expit(_z(cur[p]) + a)
         log.append(dict(t=t, mode=mode, fired=bool(fired), shift=a, z=float(zstat), psi=float(s_psi)))
     return out, pd.DataFrame(log)

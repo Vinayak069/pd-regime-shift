@@ -41,7 +41,8 @@ STANDARD = [("none", "static"), ("intercept", "static"), ("intercept", "rolling"
             ("platt", "static"), ("platt", "rolling")]
 
 
-def recalibrations(d: pd.DataFrame, test_months, delay: int, window: int) -> tuple[dict, pd.DataFrame]:
+def recalibrations(d: pd.DataFrame, test_months, delay: int, window: int,
+                   hz: tuple | None = None) -> tuple[dict, pd.DataFrame]:
     """{(method, mode): recalibrated PDs on test rows} and the early/trigger log."""
     out, logs = {}, []
     for method, mode in STANDARD:
@@ -49,6 +50,10 @@ def recalibrations(d: pd.DataFrame, test_months, delay: int, window: int) -> tup
     for mode in recalibrate.EARLY_MODES:
         out[("intercept", mode)], lg = recalibrate.recalibrate_early(d, test_months, mode, delay, window)
         logs.append(lg)
+    if hz is not None:
+        for mode in recalibrate.HZ_MODES:
+            out[("hazard", mode)], lg = recalibrate.recalibrate_early(d, test_months, mode, delay, window, hz=hz)
+            logs.append(lg)
     return out, pd.concat(logs, ignore_index=True)
 
 
@@ -71,11 +76,15 @@ def run(name: str, n_seeds: int = 5, n_boot: int = 1000, models_: tuple = ("B0",
         info[seed] = dict(ctx.info, train_vintages=None)
         for key in models_:
             model = fit_model(ctx, key, seed)
-            pdf = lifetime.cumulative_pd(model, snaps, ctx.loans, ctx.macro, [3, 12])
+            m, S = lifetime.marginal_pd(model, snaps, ctx.loans, ctx.macro, 13)
+            pdf = pd.DataFrame({"pd_3": m[:, :3].sum(1), "pd_12": m[:, :12].sum(1)})
+            # monthly hazards back out of the path: hd_k = m_k / S_k, hp_k = 1 - hd_k - S_{k+1} / S_k
+            hd = (m[:, :12] / S[:, :12]).astype("float32")
+            hz = (hd, (1 - hd - S[:, 1:13] / S[:, :12]).clip(0, 1).astype("float32"))
             for lab, (y12, y3) in LABELS.items():
                 d = snaps[["loan_id", "t"]].assign(p=pdf["pd_12"].to_numpy(), p3=pdf["pd_3"].to_numpy(),
                                                    y=snaps[y12].to_numpy(), y3=snaps[y3].to_numpy())
-                rec, lg = recalibrations(d, test_months, delay, window)
+                rec, lg = recalibrations(d, test_months, delay, window, hz)
                 for (method, mode), pr in rec.items():
                     dd = d[test].assign(p_recal=pr[test])
                     rows.append(dict(seed=seed, model=key, label=lab, method=method, mode=mode,

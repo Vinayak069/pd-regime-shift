@@ -100,3 +100,19 @@ def test_early_recalibration_uses_only_closed_short_labels_and_tracks_a_jump():
     assert log["fired"].all()
     st, _ = recalibrate.recalibrate_early(df, test, "trig_psi", delay=12, window=12)
     assert st[late].mean() < 1.5 * df.loc[late, "p"].mean()     # no score drift: stays static
+
+
+def test_hazard_shift_matches_early_labels_and_is_identity_at_zero():
+    rng = np.random.default_rng(3)
+    n = 20000
+    hd = np.tile(np.linspace(0.0005, 0.003, 12), (n, 1)) * rng.uniform(0.5, 1.5, (n, 1))
+    hp = np.full((n, 12), 0.01)
+    s, ref = np.ones(n), np.zeros(n)
+    for k in range(12):
+        ref += s * hd[:, k]
+        s *= 1 - hd[:, k] - hp[:, k]
+    assert np.allclose(recalibrate.shifted_pd(hd, hp, 0.0, 12), ref, rtol=1e-6)
+    y3 = (rng.random(n) < 2 * recalibrate.shifted_pd(hd, hp, 0.0, 3)).astype(float)
+    a = recalibrate._hazard_shift(hd, hp, y3)
+    assert abs(recalibrate.shifted_pd(hd, hp, a, 3).mean() - y3.mean()) < 1e-9
+    assert 0.4 < a < 1.0                                   # about log 2
