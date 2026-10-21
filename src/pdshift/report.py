@@ -114,8 +114,17 @@ ROBUST_NAMES = {"none|static": "M1, no recalibration", "intercept|rolling": "int
                 "intercept|early": "intercept from 3-month labels", "intercept|trig_z": "drift-triggered (z)"}
 
 
+def has_relief(d: Path) -> bool:
+    """False when the forbearance-free definition changes no label in this test window."""
+    r = pd.read_csv(d / "robustness.csv").set_index(["seed", "model", "method", "mode"])
+    return not np.allclose(r[r["label"] == "all"]["ratio"], r[r["label"] == "xf"]["ratio"].reindex(
+        r[r["label"] == "all"].index))
+
+
 def robust_table(d: Path) -> pd.DataFrame:
     r = pd.read_csv(d / "robustness.csv")
+    if not has_relief(d):
+        r = r[r["label"] == "all"]
     g = r.groupby(["model", "label", "method", "mode"], sort=False)
     out = []
     for (mk, lab, method, mode), x in g:
@@ -198,7 +207,7 @@ def main():
             if (d / "robustness_bootstrap.csv").exists():
                 b = pd.read_csv(d / "robustness_bootstrap.csv").round(4)
                 parts.append("\n\n**Loan-clustered bootstrap, first seed, M1**\n\n" + md_table(b))
-            for lab in ("all", "xf"):
+            for lab in (("all", "xf") if has_relief(d) else ("all",)):
                 f = robust_figure(d, e, lab)
                 if f:
                     parts.append(f"\n\n![{e} {lab}]({f.name})\n")

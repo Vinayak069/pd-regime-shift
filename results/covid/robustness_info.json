@@ -1,0 +1,68 @@
+{
+  "experiment": "covid",
+  "seeds": [
+    11,
+    22,
+    33,
+    44,
+    55
+  ],
+  "models": [
+    "B0",
+    "M1"
+  ],
+  "n_boot": 1000,
+  "runtime_s": 2898,
+  "per_seed": {
+    "11": {
+      "train_pairs": 3995368,
+      "train_loans": 32108,
+      "train_defaults": 5074,
+      "train_prepays": 64161,
+      "val_rows": 480108,
+      "snapshot_rows": 498000,
+      "test_snapshot_rows": 216000,
+      "train_vintages": null
+    },
+    "22": {
+      "train_pairs": 3964108,
+      "train_loans": 32029,
+      "train_defaults": 5068,
+      "train_prepays": 63833,
+      "val_rows": 480474,
+      "snapshot_rows": 498000,
+      "test_snapshot_rows": 216000,
+      "train_vintages": null
+    },
+    "33": {
+      "train_pairs": 3977582,
+      "train_loans": 32044,
+      "train_defaults": 5018,
+      "train_prepays": 64490,
+      "val_rows": 480066,
+      "snapshot_rows": 498000,
+      "test_snapshot_rows": 216000,
+      "train_vintages": null
+    },
+    "44": {
+      "train_pairs": 4021607,
+      "train_loans": 32153,
+      "train_defaults": 5033,
+      "train_prepays": 64443,
+      "val_rows": 482088,
+      "snapshot_rows": 498000,
+      "test_snapshot_rows": 216000,
+      "train_vintages": null
+    },
+    "55": {
+      "train_pairs": 4010539,
+      "train_loans": 32133,
+      "train_defaults": 5083,
+      "train_prepays": 64231,
+      "val_rows": 479206,
+      "snapshot_rows": 498000,
+      "test_snapshot_rows": 216000,
+      "train_vintages": null
+    }
+  }
+}

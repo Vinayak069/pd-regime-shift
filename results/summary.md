@@ -91,6 +91,74 @@ Pareto set: 31 of 128 evaluated candidates.
 ![control monthly](fig_control_monthly.png)
 
 
+
+**Robustness: mean ± sd over seeds (sample and model redrawn), test window**
+
+| model | default def. | recalibration | seeds | pred/obs | AUC | ECE | std monthly CITL |
+|---|---|---|---|---|---|---|---|
+| B0 | all | none static | 5 | 0.94 ± 0.06 | 0.872 ± 0.007 | 0.0010 | 0.0011 |
+| B0 | all | intercept static | 5 | 0.78 ± 0.05 | 0.872 ± 0.007 | 0.0015 | 0.0011 |
+| B0 | all | intercept rolling | 5 | 0.94 ± 0.04 | 0.870 ± 0.006 | 0.0010 | 0.0014 |
+| B0 | all | platt static | 5 | 0.77 ± 0.06 | 0.872 ± 0.007 | 0.0016 | 0.0011 |
+| B0 | all | platt rolling | 5 | 0.95 ± 0.05 | 0.870 ± 0.006 | 0.0011 | 0.0014 |
+| B0 | all | intercept early | 5 | 0.97 ± 0.05 | 0.870 ± 0.006 | 0.0009 | 0.0014 |
+| B0 | all | intercept trig_z | 5 | 0.82 ± 0.07 | 0.870 ± 0.007 | 0.0013 | 0.0013 |
+| B0 | all | intercept trig_psi | 5 | 0.97 ± 0.05 | 0.870 ± 0.006 | 0.0009 | 0.0014 |
+| B0 | xf | none static | 5 | 0.97 ± 0.06 | 0.876 ± 0.008 | 0.0011 | 0.0010 |
+| B0 | xf | intercept static | 5 | 0.80 ± 0.05 | 0.876 ± 0.008 | 0.0014 | 0.0010 |
+| B0 | xf | intercept rolling | 5 | 0.95 ± 0.04 | 0.875 ± 0.007 | 0.0010 | 0.0013 |
+| B0 | xf | platt static | 5 | 0.79 ± 0.06 | 0.876 ± 0.008 | 0.0015 | 0.0010 |
+| B0 | xf | platt rolling | 5 | 0.96 ± 0.05 | 0.874 ± 0.007 | 0.0012 | 0.0013 |
+| B0 | xf | intercept early | 5 | 0.98 ± 0.06 | 0.875 ± 0.007 | 0.0009 | 0.0013 |
+| B0 | xf | intercept trig_z | 5 | 0.83 ± 0.08 | 0.875 ± 0.007 | 0.0013 | 0.0012 |
+| B0 | xf | intercept trig_psi | 5 | 0.98 ± 0.06 | 0.875 ± 0.007 | 0.0009 | 0.0013 |
+| M1 | all | none static | 5 | 1.17 ± 0.12 | 0.885 ± 0.006 | 0.0012 | 0.0012 |
+| M1 | all | intercept static | 5 | 0.98 ± 0.07 | 0.885 ± 0.006 | 0.0006 | 0.0012 |
+| M1 | all | intercept rolling | 5 | 1.04 ± 0.05 | 0.884 ± 0.006 | 0.0007 | 0.0014 |
+| M1 | all | platt static | 5 | 0.95 ± 0.06 | 0.885 ± 0.006 | 0.0006 | 0.0012 |
+| M1 | all | platt rolling | 5 | 1.04 ± 0.05 | 0.884 ± 0.006 | 0.0005 | 0.0014 |
+| M1 | all | intercept early | 5 | 1.05 ± 0.03 | 0.884 ± 0.005 | 0.0007 | 0.0014 |
+| M1 | all | intercept trig_z | 5 | 0.95 ± 0.05 | 0.885 ± 0.006 | 0.0007 | 0.0012 |
+| M1 | all | intercept trig_psi | 5 | 1.05 ± 0.03 | 0.884 ± 0.005 | 0.0007 | 0.0014 |
+| M1 | xf | none static | 5 | 1.21 ± 0.13 | 0.889 ± 0.007 | 0.0013 | 0.0011 |
+| M1 | xf | intercept static | 5 | 1.00 ± 0.08 | 0.889 ± 0.007 | 0.0006 | 0.0011 |
+| M1 | xf | intercept rolling | 5 | 1.06 ± 0.05 | 0.889 ± 0.007 | 0.0007 | 0.0013 |
+| M1 | xf | platt static | 5 | 0.98 ± 0.06 | 0.889 ± 0.007 | 0.0005 | 0.0011 |
+| M1 | xf | platt rolling | 5 | 1.06 ± 0.05 | 0.888 ± 0.007 | 0.0005 | 0.0013 |
+| M1 | xf | intercept early | 5 | 1.05 ± 0.03 | 0.888 ± 0.006 | 0.0007 | 0.0013 |
+| M1 | xf | intercept trig_z | 5 | 0.97 ± 0.05 | 0.889 ± 0.007 | 0.0006 | 0.0012 |
+| M1 | xf | intercept trig_psi | 5 | 1.05 ± 0.03 | 0.888 ± 0.006 | 0.0007 | 0.0013 |
+
+
+**Loan-clustered bootstrap, first seed, M1**
+
+| label | method | mode | stat | estimate | lo | hi | se |
+|---|---|---|---|---|---|---|---|
+| all | none | static | auc | 0.8846 | 0.8671 | 0.9008 | 0.0087 |
+| all | none | static | ratio | 1.0953 | 0.9959 | 1.2156 | 0.0553 |
+| all | intercept | rolling | auc | 0.8842 | 0.8662 | 0.9004 | 0.0087 |
+| all | intercept | rolling | ratio | 0.9909 | 0.9006 | 1.0994 | 0.05 |
+| all | intercept | early | auc | 0.8835 | 0.8663 | 0.8994 | 0.0086 |
+| all | intercept | early | ratio | 0.9984 | 0.9079 | 1.1075 | 0.0504 |
+| all | intercept | trig_z | auc | 0.8846 | 0.8674 | 0.9007 | 0.0086 |
+| all | intercept | trig_z | ratio | 0.9679 | 0.8806 | 1.0736 | 0.0488 |
+| xf | none | static | auc | 0.889 | 0.8716 | 0.9055 | 0.0085 |
+| xf | none | static | ratio | 1.1254 | 1.0228 | 1.2532 | 0.0578 |
+| xf | intercept | rolling | auc | 0.8885 | 0.8708 | 0.9053 | 0.0086 |
+| xf | intercept | rolling | ratio | 1.0081 | 0.9163 | 1.1224 | 0.0518 |
+| xf | intercept | early | auc | 0.8881 | 0.8711 | 0.9044 | 0.0085 |
+| xf | intercept | early | ratio | 1.0071 | 0.9152 | 1.1207 | 0.0517 |
+| xf | intercept | trig_z | auc | 0.8888 | 0.8717 | 0.9056 | 0.0085 |
+| xf | intercept | trig_z | ratio | 0.993 | 0.9023 | 1.1049 | 0.051 |
+
+
+![control all](fig_control_robust_all.png)
+
+
+
+![control xf](fig_control_robust_xf.png)
+
+
 ## crisis_2008
 
 Windows: {'train': [None, 200412], 'validate': [200501, 200512], 'gap': [200601, 200612], 'test': [200701, 201012]}. Training: 3998365 landmark pairs from 121590 loans (vintages 1999-2004), 3901 defaults. Test snapshots: 288000 loan-months. Pooled LGD 0.159 from 1142 resolved defaults.
@@ -179,6 +247,54 @@ Pareto set: 22 of 128 evaluated candidates.
 ![crisis_2008 monthly](fig_crisis_2008_monthly.png)
 
 
+
+**Robustness: mean ± sd over seeds (sample and model redrawn), test window**
+
+| model | default def. | recalibration | seeds | pred/obs | AUC | ECE | std monthly CITL |
+|---|---|---|---|---|---|---|---|
+| B0 | all | none static | 5 | 0.10 ± 0.01 | 0.812 ± 0.006 | 0.0190 | 0.0092 |
+| B0 | all | intercept static | 5 | 0.10 ± 0.01 | 0.812 ± 0.006 | 0.0190 | 0.0092 |
+| B0 | all | intercept rolling | 5 | 0.69 ± 0.04 | 0.804 ± 0.003 | 0.0084 | 0.0183 |
+| B0 | all | platt static | 5 | 0.09 ± 0.01 | 0.812 ± 0.006 | 0.0191 | 0.0091 |
+| B0 | all | platt rolling | 5 | 0.68 ± 0.04 | 0.795 ± 0.004 | 0.0079 | 0.0178 |
+| B0 | all | intercept early | 5 | 0.39 ± 0.01 | 0.842 ± 0.005 | 0.0128 | 0.0084 |
+| B0 | all | intercept trig_z | 5 | 0.39 ± 0.01 | 0.842 ± 0.005 | 0.0128 | 0.0084 |
+| B0 | all | intercept trig_psi | 5 | 0.39 ± 0.01 | 0.842 ± 0.005 | 0.0128 | 0.0084 |
+| M1 | all | none static | 5 | 0.42 ± 0.02 | 0.854 ± 0.001 | 0.0122 | 0.0071 |
+| M1 | all | intercept static | 5 | 0.46 ± 0.04 | 0.854 ± 0.001 | 0.0114 | 0.0070 |
+| M1 | all | intercept rolling | 5 | 0.94 ± 0.03 | 0.847 ± 0.003 | 0.0064 | 0.0116 |
+| M1 | all | platt static | 5 | 0.45 ± 0.04 | 0.854 ± 0.001 | 0.0115 | 0.0071 |
+| M1 | all | platt rolling | 5 | 0.91 ± 0.02 | 0.838 ± 0.002 | 0.0045 | 0.0113 |
+| M1 | all | intercept early | 5 | 0.70 ± 0.03 | 0.856 ± 0.003 | 0.0063 | 0.0063 |
+| M1 | all | intercept trig_z | 5 | 0.70 ± 0.03 | 0.856 ± 0.003 | 0.0063 | 0.0064 |
+| M1 | all | intercept trig_psi | 5 | 0.57 ± 0.05 | 0.851 ± 0.004 | 0.0091 | 0.0073 |
+
+
+**Loan-clustered bootstrap, first seed, M1**
+
+| label | method | mode | stat | estimate | lo | hi | se |
+|---|---|---|---|---|---|---|---|
+| all | none | static | auc | 0.8536 | 0.8453 | 0.861 | 0.0042 |
+| all | none | static | ratio | 0.4032 | 0.386 | 0.4224 | 0.0093 |
+| all | intercept | rolling | auc | 0.8417 | 0.8332 | 0.8497 | 0.0042 |
+| all | intercept | rolling | ratio | 0.8995 | 0.8611 | 0.9423 | 0.0204 |
+| all | intercept | early | auc | 0.853 | 0.8453 | 0.8604 | 0.0041 |
+| all | intercept | early | ratio | 0.7333 | 0.7021 | 0.7682 | 0.0164 |
+| all | intercept | trig_z | auc | 0.8532 | 0.8455 | 0.8607 | 0.0041 |
+| all | intercept | trig_z | ratio | 0.7285 | 0.6975 | 0.7632 | 0.0163 |
+| xf | none | static | auc | 0.8536 | 0.8453 | 0.861 | 0.0042 |
+| xf | none | static | ratio | 0.4032 | 0.386 | 0.4224 | 0.0093 |
+| xf | intercept | rolling | auc | 0.8417 | 0.8332 | 0.8497 | 0.0042 |
+| xf | intercept | rolling | ratio | 0.8995 | 0.8611 | 0.9423 | 0.0204 |
+| xf | intercept | early | auc | 0.853 | 0.8453 | 0.8604 | 0.0041 |
+| xf | intercept | early | ratio | 0.7333 | 0.7021 | 0.7682 | 0.0164 |
+| xf | intercept | trig_z | auc | 0.8532 | 0.8455 | 0.8607 | 0.0041 |
+| xf | intercept | trig_z | ratio | 0.7285 | 0.6975 | 0.7632 | 0.0163 |
+
+
+![crisis_2008 all](fig_crisis_2008_robust_all.png)
+
+
 ## covid
 
 Windows: {'train': [None, 201712], 'validate': [201801, 201812], 'gap': [201901, 201912], 'test': [202001, 202212]}. Training: 3986238 landmark pairs from 32148 loans (vintages 1999-2017), 5002 defaults. Test snapshots: 216000 loan-months. Pooled LGD 0.454 from 18378 resolved defaults.
@@ -265,3 +381,71 @@ Pareto set: 24 of 128 evaluated candidates.
 
 
 ![covid monthly](fig_covid_monthly.png)
+
+
+
+**Robustness: mean ± sd over seeds (sample and model redrawn), test window**
+
+| model | default def. | recalibration | seeds | pred/obs | AUC | ECE | std monthly CITL |
+|---|---|---|---|---|---|---|---|
+| B0 | all | none static | 5 | 0.42 ± 0.07 | 0.838 ± 0.007 | 0.0066 | 0.0108 |
+| B0 | all | intercept static | 5 | 0.43 ± 0.06 | 0.838 ± 0.007 | 0.0065 | 0.0108 |
+| B0 | all | intercept rolling | 5 | 1.09 ± 0.02 | 0.752 ± 0.013 | 0.0049 | 0.0161 |
+| B0 | all | platt static | 5 | 0.51 ± 0.08 | 0.838 ± 0.007 | 0.0056 | 0.0113 |
+| B0 | all | platt rolling | 5 | 1.19 ± 0.04 | 0.726 ± 0.011 | 0.0067 | 0.0162 |
+| B0 | all | intercept early | 5 | 1.22 ± 0.07 | 0.769 ± 0.016 | 0.0062 | 0.0196 |
+| B0 | all | intercept trig_z | 5 | 1.21 ± 0.07 | 0.767 ± 0.016 | 0.0061 | 0.0196 |
+| B0 | all | intercept trig_psi | 5 | 1.10 ± 0.09 | 0.779 ± 0.012 | 0.0057 | 0.0196 |
+| B0 | xf | none static | 5 | 1.83 ± 0.31 | 0.803 ± 0.013 | 0.0023 | 0.0058 |
+| B0 | xf | intercept static | 5 | 1.81 ± 0.27 | 0.803 ± 0.013 | 0.0022 | 0.0057 |
+| B0 | xf | intercept rolling | 5 | 1.55 ± 0.17 | 0.767 ± 0.016 | 0.0021 | 0.0058 |
+| B0 | xf | platt static | 5 | 2.12 ± 0.35 | 0.803 ± 0.013 | 0.0033 | 0.0086 |
+| B0 | xf | platt rolling | 5 | 1.98 ± 0.28 | 0.786 ± 0.014 | 0.0031 | 0.0086 |
+| B0 | xf | intercept early | 5 | 1.44 ± 0.14 | 0.794 ± 0.012 | 0.0016 | 0.0062 |
+| B0 | xf | intercept trig_z | 5 | 1.36 ± 0.16 | 0.796 ± 0.012 | 0.0014 | 0.0059 |
+| B0 | xf | intercept trig_psi | 5 | 1.60 ± 0.12 | 0.791 ± 0.012 | 0.0019 | 0.0062 |
+| M1 | all | none static | 5 | 0.41 ± 0.09 | 0.836 ± 0.014 | 0.0068 | 0.0111 |
+| M1 | all | intercept static | 5 | 0.30 ± 0.12 | 0.836 ± 0.014 | 0.0080 | 0.0115 |
+| M1 | all | intercept rolling | 5 | 1.00 ± 0.20 | 0.737 ± 0.029 | 0.0057 | 0.0157 |
+| M1 | all | platt static | 5 | 0.30 ± 0.11 | 0.836 ± 0.014 | 0.0080 | 0.0116 |
+| M1 | all | platt rolling | 5 | 1.10 ± 0.15 | 0.691 ± 0.026 | 0.0059 | 0.0168 |
+| M1 | all | intercept early | 5 | 1.38 ± 0.21 | 0.758 ± 0.015 | 0.0092 | 0.0206 |
+| M1 | all | intercept trig_z | 5 | 1.36 ± 0.21 | 0.744 ± 0.019 | 0.0096 | 0.0210 |
+| M1 | all | intercept trig_psi | 5 | 0.60 ± 0.15 | 0.786 ± 0.028 | 0.0050 | 0.0145 |
+| M1 | xf | none static | 5 | 1.76 ± 0.41 | 0.838 ± 0.010 | 0.0023 | 0.0024 |
+| M1 | xf | intercept static | 5 | 1.24 ± 0.52 | 0.838 ± 0.010 | 0.0013 | 0.0019 |
+| M1 | xf | intercept rolling | 5 | 1.07 ± 0.22 | 0.834 ± 0.010 | 0.0011 | 0.0021 |
+| M1 | xf | platt static | 5 | 1.26 ± 0.50 | 0.838 ± 0.010 | 0.0010 | 0.0017 |
+| M1 | xf | platt rolling | 5 | 1.13 ± 0.24 | 0.838 ± 0.010 | 0.0006 | 0.0018 |
+| M1 | xf | intercept early | 5 | 1.13 ± 0.17 | 0.823 ± 0.010 | 0.0013 | 0.0024 |
+| M1 | xf | intercept trig_z | 5 | 0.93 ± 0.12 | 0.827 ± 0.010 | 0.0010 | 0.0021 |
+| M1 | xf | intercept trig_psi | 5 | 1.24 ± 0.42 | 0.830 ± 0.011 | 0.0013 | 0.0019 |
+
+
+**Loan-clustered bootstrap, first seed, M1**
+
+| label | method | mode | stat | estimate | lo | hi | se |
+|---|---|---|---|---|---|---|---|
+| all | none | static | auc | 0.8414 | 0.8289 | 0.8536 | 0.0064 |
+| all | none | static | ratio | 0.5082 | 0.4758 | 0.5428 | 0.0168 |
+| all | intercept | rolling | auc | 0.7391 | 0.7243 | 0.7547 | 0.0077 |
+| all | intercept | rolling | ratio | 1.1372 | 1.0596 | 1.2203 | 0.0394 |
+| all | intercept | early | auc | 0.7787 | 0.7652 | 0.7917 | 0.0068 |
+| all | intercept | early | ratio | 1.4065 | 1.315 | 1.509 | 0.0479 |
+| all | intercept | trig_z | auc | 0.7515 | 0.7378 | 0.7651 | 0.0071 |
+| all | intercept | trig_z | ratio | 1.3393 | 1.2521 | 1.4373 | 0.0458 |
+| xf | none | static | auc | 0.8428 | 0.8127 | 0.8735 | 0.0152 |
+| xf | none | static | ratio | 2.1891 | 1.8807 | 2.6074 | 0.1825 |
+| xf | intercept | rolling | auc | 0.8381 | 0.8073 | 0.8674 | 0.0156 |
+| xf | intercept | rolling | ratio | 1.1579 | 0.9939 | 1.3744 | 0.0971 |
+| xf | intercept | early | auc | 0.828 | 0.7944 | 0.8606 | 0.017 |
+| xf | intercept | early | ratio | 1.2061 | 1.0349 | 1.4365 | 0.1015 |
+| xf | intercept | trig_z | auc | 0.8304 | 0.7968 | 0.8632 | 0.017 |
+| xf | intercept | trig_z | ratio | 1.0265 | 0.8814 | 1.2212 | 0.0863 |
+
+
+![covid all](fig_covid_robust_all.png)
+
+
+
+![covid xf](fig_covid_robust_xf.png)
