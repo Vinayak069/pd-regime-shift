@@ -1,0 +1,9 @@
+{
+  "evaluations": 128,
+  "distinct_models": 121,
+  "seed": 11,
+  "label": "xf",
+  "population": 16,
+  "generations": 8,
+  "runtime_s": 7906
+}

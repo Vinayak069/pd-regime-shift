@@ -164,6 +164,53 @@ def robust_figure(d: Path, name: str, label: str) -> Path | None:
     return out
 
 
+METHOD_COLORS = {"none": "#2a78d6", "intercept": "#eb6834", "platt": "#1baf7a", "isotonic": "#8e4ec6",
+                 "iw_platt": "#c9a227", "early": "#d6457a", "trig_z": "#3a9ba8"}
+
+
+def pareto_figure(sel_csv: Path, title: str, out: Path) -> Path | None:
+    """Left: validation objectives of every candidate, Pareto set outlined. Right: the same Pareto
+    candidates scored on the test window afterwards (static mode), pred/obs against AUC."""
+    if not sel_csv.exists():
+        return None
+    s = pd.read_csv(sel_csv)
+    ev = s.drop_duplicates("eval")
+    fig, (a, b) = plt.subplots(1, 2, figsize=(9.6, 3.8), dpi=200)
+    for m, col in METHOD_COLORS.items():
+        x = ev[ev["method"] == m]
+        if x.empty:
+            continue
+        a.scatter(x["val_auc"], x["val_ece"], s=14, color=col, alpha=0.35, linewidths=0)
+        par = x[x["pareto"]]
+        a.scatter(par["val_auc"], par["val_ece"], s=26, color=col, edgecolors="#0b0b0b", linewidths=0.6,
+                  label=m.replace("_", " "))
+        t = s[(s["method"] == m) & s["pareto"] & (s["mode"] == "static")]
+        b.scatter(t["test_auc"], t["test_ratio"], s=26, color=col, edgecolors="#0b0b0b", linewidths=0.6)
+    for pick, mk in (("knee", "*"), ("max_auc", "^")):
+        r = ev[ev["pick"].fillna("").str.contains(pick)]
+        a.scatter(r["val_auc"], r["val_ece"], s=110, marker=mk, facecolors="none", edgecolors="#0b0b0b", lw=1.2)
+        t = s[s["pick"].fillna("").str.contains(pick) & (s["mode"] == "static")]
+        b.scatter(t["test_auc"], t["test_ratio"], s=110, marker=mk, facecolors="none", edgecolors="#0b0b0b",
+                  lw=1.2, label={"knee": "Pareto knee", "max_auc": "max-AUC pick"}[pick])
+    b.axhline(1.0, color="#9a9893", lw=1, ls="--")
+    a.set_xlabel("validation AUC")
+    a.set_ylabel("validation ECE")
+    b.set_xlabel("test AUC")
+    b.set_ylabel("test predicted / observed")
+    a.set_title(f"{title}: candidates on validation (Pareto set outlined)", fontsize=9, loc="left")
+    b.set_title("Pareto set on the test window", fontsize=9, loc="left")
+    for ax in (a, b):
+        for side in ("top", "right"):
+            ax.spines[side].set_visible(False)
+        ax.grid(color="#e5e4e0", lw=0.8)
+    a.legend(frameon=False, fontsize=7, title="recalibration", title_fontsize=7)
+    b.legend(frameon=False, fontsize=7)
+    fig.tight_layout()
+    fig.savefig(out)
+    plt.close(fig)
+    return out
+
+
 def main():
     parts = ["# Results summary\n", "All numbers below come from the Freddie Mac SFLLD standard sample files "
              "(1999-2026 vintages) and FRED macro series, produced by `make experiments` / `make select`. "
@@ -211,6 +258,21 @@ def main():
                 f = robust_figure(d, e, lab)
                 if f:
                     parts.append(f"\n\n![{e} {lab}]({f.name})\n")
+    parts.append("\n## Second NSGA-II search (early-label methods in the search space)\n")
+    for sub, title in (("crisis_2008", "Crisis 2008"), ("covid_xf", "COVID, forbearance-free")):
+        f = RESULTS / "sel2" / sub / "selection.csv"
+        if not f.exists():
+            continue
+        s = pd.read_csv(f)
+        picks = s[s["pick"].notna() & (s["pick"] != "")]
+        parts.append(f"\n**{title}**\n\n" + md_table(picks[["pick", "mode", "method", "val_auc", "val_ece",
+                                                              "test_auc", "test_ratio", "test_citl_monthly_std"]].round(4)))
+        fig = pareto_figure(f, title, RESULTS / f"fig_pareto_{sub}.png")
+        parts.append(f"\n\n![{title} Pareto front]({fig.name})\n")
+    for e in EXPS:
+        f = RESULTS / e / "selection.csv"
+        if f.exists():
+            pareto_figure(f, f"{e} (first search)", RESULTS / f"fig_pareto_{e}_first.png")
     (RESULTS / "summary.md").write_text("\n".join(parts))
     print(RESULTS / "summary.md")
 

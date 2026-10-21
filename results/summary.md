@@ -449,3 +449,40 @@ Pareto set: 24 of 128 evaluated candidates.
 
 
 ![covid xf](fig_covid_robust_xf.png)
+
+
+## Second NSGA-II search (early-label methods in the search space)
+
+
+**Crisis 2008**
+
+| pick | mode | method | val_auc | val_ece | test_auc | test_ratio | test_citl_monthly_std |
+|---|---|---|---|---|---|---|---|
+| min_brier; | static | trig_z | 0.9234 | 0.0017 | 0.8422 | 0.6912 | 0.0071 |
+| min_brier; | rolling | trig_z | 0.9234 | 0.0017 | 0.8422 | 0.6912 | 0.0071 |
+| knee; | static | isotonic | 0.921 | 0.0009 | 0.8462 | 0.5253 | 0.0066 |
+| knee; | rolling | isotonic | 0.921 | 0.0009 | 0.8357 | 0.9186 | 0.0097 |
+| min_ece; | static | isotonic | 0.9062 | 0.0006 | 0.8228 | 0.5415 | 0.0071 |
+| min_ece; | rolling | isotonic | 0.9062 | 0.0006 | 0.812 | 0.9192 | 0.0107 |
+| max_auc; | static | platt | 0.9281 | 0.0019 | 0.845 | 0.4515 | 0.0072 |
+| max_auc; | rolling | platt | 0.9281 | 0.0019 | 0.8237 | 0.8674 | 0.0103 |
+
+
+![Crisis 2008 Pareto front](fig_pareto_crisis_2008.png)
+
+
+**COVID, forbearance-free**
+
+| pick | mode | method | val_auc | val_ece | test_auc | test_ratio | test_citl_monthly_std |
+|---|---|---|---|---|---|---|---|
+| min_ece; | static | early | 0.8828 | 0.0004 | 0.8124 | 0.9463 | 0.0016 |
+| min_ece; | rolling | early | 0.8828 | 0.0004 | 0.8124 | 0.9463 | 0.0016 |
+| max_auc; | static | platt | 0.9041 | 0.0041 | 0.8471 | 0.9906 | 0.0016 |
+| max_auc; | rolling | platt | 0.9041 | 0.0041 | 0.8484 | 0.9594 | 0.0016 |
+| min_brier; | static | early | 0.8915 | 0.0006 | 0.8185 | 0.9729 | 0.0015 |
+| min_brier; | rolling | early | 0.8915 | 0.0006 | 0.8185 | 0.9729 | 0.0015 |
+| knee; | static | none | 0.8993 | 0.0013 | 0.8295 | 0.8257 | 0.0012 |
+| knee; | rolling | none | 0.8993 | 0.0013 | 0.8295 | 0.8257 | 0.0012 |
+
+
+![COVID, forbearance-free Pareto front](fig_pareto_covid_xf.png)
