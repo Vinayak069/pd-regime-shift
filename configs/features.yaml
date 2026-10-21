@@ -1,0 +1,23 @@
+# Feature names as they appear in the panel (src/pdshift/panel.py, features.py).
+loan_static:
+  numeric: [credit_score, orig_ltv, orig_cltv, orig_dti, orig_upb, orig_interest_rate, mi_pct, num_units,
+            num_borrowers, orig_loan_term]
+  categorical: [first_time_homebuyer, occupancy_status, channel, property_type, loan_purpose]
+# Loan state is taken at the landmark month t; loan_age is at the hazard month t+k; k = months since t.
+loan_dynamic: [loan_age, k, current_interest_rate, upb_ratio, dlq_now, dlq_max_12, mod_ever, ever_30dpd]
+# Macro series from FRED. lag = months between the observation date and the end of the month
+# in which it is published; month t sees the value dated t - lag.
+#   UNRATE: released first Friday of the next month -> 1
+#   MORTGAGE30US: weekly (Thursday), monthly mean is complete at month end -> 0
+#   CSUSHPINSA: released last Tuesday, two months after the reference month -> 2
+#   GDPC1: quarterly, dated at quarter start, advance estimate ~4 weeks after quarter end -> 3 (+ freq q)
+macro:
+  UNRATE: {lag: 1, transform: [level, diff_12]}
+  MORTGAGE30US: {lag: 0, freq: w, transform: [level]}
+  CSUSHPINSA: {lag: 2, transform: [yoy, index]}
+  GDPC1: {lag: 3, freq: q, transform: [yoy]}
+# Features derived from loan and macro together (features.py):
+#   refi_incentive = current_interest_rate - mortgage30us
+#   mtm_ltv        = orig_ltv * HPI(origination month) / HPI(t), national Case-Shiller, both lagged
+derived: [refi_incentive, mtm_ltv]
+macro_features: [unrate, unrate_d12, mortgage30us, csushpinsa_yoy, gdpc1_yoy]

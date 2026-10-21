@@ -1,0 +1,91 @@
+# Column order of the Freddie Mac Single-Family Loan-Level Dataset files (pipe-delimited, no header).
+# Checked 2026-10-20 against Freddie Mac's file_layout.xlsx and user_guide.pdf (32 + 32 fields) and
+# against the sample files actually downloaded (sample_YYYY.zip with sample_orig/sample_perf):
+#   origination rows have 31 fields: 1-24 as below; servicer name has moved to the performance file,
+#     so fields 25-31 differ from this list. Only fields 1-23 are used.
+#   performance rows have 34 fields (+ trailing '|'): 1-32 as below, then 3 extra fields
+#     (33 constant '7', 34 servicer name, 35 rarely populated). Actual loss (22) reconciled by hand
+#     on REO rows: removal UPB + delinquent interest - recoveries + expenses = actual loss (positive = loss).
+# The parser also checks a few invariants and fails loudly if the order looks wrong.
+origination:
+  - credit_score
+  - first_payment_date
+  - first_time_homebuyer
+  - maturity_date
+  - msa
+  - mi_pct
+  - num_units
+  - occupancy_status
+  - orig_cltv
+  - orig_dti
+  - orig_upb
+  - orig_ltv
+  - orig_interest_rate
+  - channel
+  - ppm_flag
+  - amortization_type
+  - property_state
+  - property_type
+  - postal_code
+  - loan_id
+  - loan_purpose
+  - orig_loan_term
+  - num_borrowers
+  - seller_name
+  - servicer_name
+  - super_conforming_flag
+  - pre_harp_loan_id
+  - program_indicator
+  - harp_indicator
+  - property_valuation_method
+  - interest_only_indicator
+  - mi_cancellation_indicator
+performance:
+  - loan_id
+  - period
+  - current_upb
+  - delinquency_status
+  - loan_age
+  - remaining_months
+  - defect_settlement_date
+  - modification_flag
+  - zero_balance_code
+  - zero_balance_date
+  - current_interest_rate
+  - current_non_interest_bearing_upb
+  - ddlpi
+  - mi_recoveries
+  - net_sale_proceeds
+  - non_mi_recoveries
+  - total_expenses
+  - legal_costs
+  - maintenance_costs
+  - taxes_insurance
+  - misc_expenses
+  - actual_loss
+  - cumulative_modification_cost
+  - step_modification_flag
+  - payment_deferral
+  - estimated_ltv
+  - zero_balance_removal_upb
+  - delinquent_accrued_interest
+  - delinquency_due_to_disaster
+  - borrower_assistance_status
+  - current_month_modification_cost
+  - interest_bearing_upb
+# Sentinel codes meaning "not available" in the origination file.
+missing_codes:
+  credit_score: [9999]
+  orig_cltv: [999]
+  orig_ltv: [999]
+  orig_dti: [999]
+  mi_pct: [999]
+  num_borrowers: [99]
+# Event definitions (zero balance codes from the user guide, 2026-10-20).
+# 15 whole loan sales are sales of seriously delinquent loans, so they count as default.
+# 16 reperforming-loan securitisation and 96 defects remove the loan without an observed outcome: censored.
+events:
+  default_dlq_months: 3            # 90+ days delinquent
+  default_zero_balance_codes: ["02", "03", "09", "15"]   # third-party sale, short sale/charge-off, REO, note sale
+  prepay_zero_balance_codes: ["01"]                      # prepaid or matured
+  censor_zero_balance_codes: ["16", "96"]

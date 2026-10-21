@@ -1,0 +1,7 @@
+data/
+logs/
+results/crisis_2008_v0_frozen_state/
+__pycache__/
+.pytest_cache/
+*.parquet
+.ipynb_checkpoints/

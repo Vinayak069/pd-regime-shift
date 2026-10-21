@@ -1,0 +1,8 @@
+{
+  "evaluations": 128,
+  "distinct_models": 126,
+  "seed": 11,
+  "population": 16,
+  "generations": 8,
+  "runtime_s": 8356
+}

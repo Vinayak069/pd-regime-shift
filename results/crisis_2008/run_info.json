@@ -1,0 +1,51 @@
+{
+  "experiment": "crisis_2008",
+  "models": [
+    "B0",
+    "B1",
+    "M1"
+  ],
+  "seeds": [
+    11
+  ],
+  "lifetime_months": 60,
+  "lgd": {
+    "lgd": 0.15856509671039437,
+    "n": 1142,
+    "median_loss_rate": 0.08954864753898441
+  },
+  "windows": {
+    "train": [
+      null,
+      200412
+    ],
+    "validate": [
+      200501,
+      200512
+    ],
+    "gap": [
+      200601,
+      200612
+    ],
+    "test": [
+      200701,
+      201012
+    ]
+  },
+  "runtime_s": 1537,
+  "train_pairs": 3998365,
+  "train_loans": 121590,
+  "train_defaults": 3901,
+  "train_prepays": 138014,
+  "val_rows": 366300,
+  "snapshot_rows": 570000,
+  "test_snapshot_rows": 288000,
+  "train_vintages": [
+    1999,
+    2000,
+    2001,
+    2002,
+    2003,
+    2004
+  ]
+}

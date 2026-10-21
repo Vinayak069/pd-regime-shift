@@ -1,0 +1,38 @@
+seeds: [11, 22, 33, 44, 55]
+models:
+  B0: {type: logit_hazard, features: [loan_static, loan_dynamic, macro], params: {C: 1.0}}
+  B1: {type: logit_hazard, features: [loan_static, loan_dynamic], params: {C: 1.0}}
+  M1:
+    type: lightgbm_hazard
+    features: [loan_static, loan_dynamic, macro]
+    params: {num_leaves: 63, learning_rate: 0.05, min_child_samples: 500, feature_fraction: 0.8}
+    search: {num_leaves: [15, 255], learning_rate: [0.01, 0.2], min_child_samples: [50, 2000], feature_fraction: [0.5, 1.0]}
+  M2: {type: neural_survival, optional: true}
+resampling: none   # never resample defaults: it distorts calibration
+# Sampling (rows are loan-months; samples are drawn by whole loan, see dataset.py)
+sampling:
+  train_buckets: 50          # loans in buckets 0..49 fit models; 50..99 are for evaluation
+  landmark_every: 12         # one landmark per loan every 12 at-risk months (models.py, dataset.py)
+  max_train_rows: 4000000    # landmark pairs
+  max_val_rows: 1000000
+  loans_per_snapshot: 6000   # evaluation loans drawn per month
+recalibration:
+  methods: [none, intercept, platt, isotonic, iw_platt]
+  modes: [static, rolling]
+  window_months: 12
+selection:
+  algorithm: nsga2
+  objectives: {auc: max, ece: min, citl_monthly_std: min}
+  population: 16
+  generations: 8
+  max_train_rows: 1500000
+  loans_per_snapshot: 3000
+bootstrap: {resamples: 1000, cluster: loan_id}
+ecl:
+  lifetime_months: 60        # lifetime ECL truncated at 5 years (compute budget); stated in the paper
+  # shocks are added to the time-t macro values and ramp in over ramp_months
+  scenarios:
+    baseline: {weight: 0.6, shocks: {}}
+    downside: {weight: 0.3, shocks: {unrate: 2.0, csushpinsa_yoy: -0.10, gdpc1_yoy: -0.02}}
+    upside:   {weight: 0.1, shocks: {unrate: -0.5, csushpinsa_yoy: 0.03, gdpc1_yoy: 0.01}}
+  ramp_months: 12

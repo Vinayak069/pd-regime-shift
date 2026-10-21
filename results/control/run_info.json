@@ -1,0 +1,58 @@
+{
+  "experiment": "control",
+  "models": [
+    "B0",
+    "B1",
+    "M1"
+  ],
+  "seeds": [
+    11
+  ],
+  "lifetime_months": 60,
+  "lgd": {
+    "lgd": 0.4382449389317677,
+    "n": 12486,
+    "median_loss_rate": 0.45559090476017083
+  },
+  "windows": {
+    "train": [
+      null,
+      201112
+    ],
+    "validate": [
+      201201,
+      201212
+    ],
+    "gap": [
+      201301,
+      201312
+    ],
+    "test": [
+      201401,
+      201612
+    ]
+  },
+  "runtime_s": 1431,
+  "train_pairs": 3997837,
+  "train_loans": 42712,
+  "train_defaults": 6227,
+  "train_prepays": 66079,
+  "val_rows": 466361,
+  "snapshot_rows": 498000,
+  "test_snapshot_rows": 216000,
+  "train_vintages": [
+    1999,
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011
+  ]
+}
