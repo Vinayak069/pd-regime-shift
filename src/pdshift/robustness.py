@@ -47,7 +47,7 @@ def recalibrations(d: pd.DataFrame, test_months, delay: int, window: int,
     out, logs = {}, []
     for method, mode in STANDARD:
         out[(method, mode)] = recalibrate.recalibrate(d, test_months, method, mode, delay, window)
-    for mode in recalibrate.EARLY_MODES:
+    for mode in recalibrate.EARLY_MODES + recalibrate.TREND_MODES:
         out[("intercept", mode)], lg = recalibrate.recalibrate_early(d, test_months, mode, delay, window)
         logs.append(lg)
     if hz is not None:
@@ -97,8 +97,18 @@ def run(name: str, n_seeds: int = 5, n_boot: int = 1000, models_: tuple = ("B0",
                         mt[f"{method}|{mode}"] = pr[test].groupby(dt["t"]).mean()
                     monthly.append(mt.reset_index().assign(label=lab))
                     if n_boot:
+                        base = rec[("intercept", "rolling")][test]
+                        for (method, mode) in [("none", "static"), ("intercept", "early"), ("intercept", "trig_z"),
+                                               ("intercept", "trig_trend")]:
+                            # paired: AUC(method) - AUC(rolling intercept) on the same resampled loans
+                            db = dt.assign(p_recal=rec[(method, mode)][test], p_ref=base)
+                            db = db[db["y"].notna()]
+                            fn = lambda x: roc_auc_score(x["y"], x["p_recal"]) - roc_auc_score(x["y"], x["p_ref"])
+                            boot.append(dict(label=lab, method=method, mode=mode, stat="auc_minus_rolling",
+                                             **metrics.cluster_bootstrap(db, fn, n_boot=n_boot, seed=seed)))
                         for (method, mode) in [("none", "static"), ("intercept", "rolling"),
-                                               ("intercept", "early"), ("intercept", "trig_z")]:
+                                               ("intercept", "early"), ("intercept", "trig_z"),
+                                               ("intercept", "trig_trend")]:
                             db = dt.assign(p_recal=rec[(method, mode)][test])
                             db = db[db["y"].notna()]
                             for stat, fn in (("auc", lambda x: roc_auc_score(x["y"], x["p_recal"])),

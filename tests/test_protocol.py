@@ -116,3 +116,24 @@ def test_hazard_shift_matches_early_labels_and_is_identity_at_zero():
     a = recalibrate._hazard_shift(hd, hp, y3)
     assert abs(recalibrate.shifted_pd(hd, hp, a, 3).mean() - y3.mean()) < 1e-9
     assert 0.4 < a < 1.0                                   # about log 2
+
+
+def test_trend_recalibration_leads_a_rising_risk_and_respects_the_delay():
+    rng = np.random.default_rng(4)
+    months = np.arange(100, 160)
+    df = pd.DataFrame({"t": np.repeat(months, 3000)})
+    df["p3"] = rng.uniform(0.002, 0.01, len(df))
+    df["p"] = 4 * df["p3"]
+    mult = np.exp(np.clip(df["t"] - 125, 0, None) * 0.05)    # risk keeps rising from month 125
+    df["y3"] = (rng.random(len(df)) < np.clip(df["p3"] * mult, 0, 1)).astype(float)
+    df["y"] = (rng.random(len(df)) < np.clip(df["p"] * mult, 0, 1)).astype(float)
+    test = months[30:]
+    early, _ = recalibrate.recalibrate_early(df, test, "early")
+    trend, log = recalibrate.recalibrate_early(df, test, "trend")
+    late = df["t"].between(145, 159)
+    truth = (df["p"] * mult)[late].mean()
+    assert abs(trend[late].mean() - truth) < abs(early[late].mean() - truth)
+    df2 = df.copy()
+    df2.loc[df2["t"] >= 157, ["y", "y3"]] = 1.0             # labels a lender could not have at month 159
+    t2, _ = recalibrate.recalibrate_early(df2, test, "trend")
+    assert np.allclose(t2[df["t"] == 159], trend[df["t"] == 159])

@@ -30,6 +30,11 @@ the prepayment hazards unchanged, and a is solved so that the recomputed 3-month
 PDs match the early outcomes. A shift that lifts the near-term hazards then raises
 the 12-month PD by more than the plain logit shift does when hazards rise with k.
 
+The trend modes look forward: the early shift is fitted on outcomes centred about
+g = early_delay + (early_window - 1) / 2 months before t, so a shift that is still
+moving is stale by g months. They fit a line through the early shifts of the last
+trend_months months (each from its own delay-safe window) and use a(t) + slope * g.
+
 Drift-triggered recalibration uses the early correction only in months where a
 detector fires, and the static recalibration otherwise:
   trig_z    the early labels disagree with the model: |O - E| / sqrt(sum p(1 - p)) > z
@@ -123,6 +128,7 @@ def recalibrate(snaps: pd.DataFrame, test_months, method: str, mode: str, delay:
 
 
 EARLY_MODES = ["early", "trig_z", "trig_psi"]
+TREND_MODES = ["trend", "trig_trend"]
 HZ_MODES = ["early_hz", "trig_z_hz"]
 
 
@@ -157,7 +163,8 @@ def _intercept(hist, p, y):
 def recalibrate_early(snaps: pd.DataFrame, test_months, mode: str, delay: int = 12, window: int = 12,
                       early_delay: int = 3, early_window: int = 6, z: float = 2.0, psi_max: float = 0.10,
                       p="p", y="y", p_early="p3", y_early="y3",
-                      hz: tuple[np.ndarray, np.ndarray] | None = None) -> tuple[pd.Series, pd.DataFrame]:
+                      hz: tuple[np.ndarray, np.ndarray] | None = None,
+                      trend_months: int = 6) -> tuple[pd.Series, pd.DataFrame]:
     """Recalibrated 12-month PDs for test_months, and a per-month log (shift, z, psi, fired).
 
     For the _hz modes, hz holds the monthly hazards aligned with snaps' row positions."""
@@ -168,6 +175,15 @@ def recalibrate_early(snaps: pd.DataFrame, test_months, mode: str, delay: int = 
     ref = snaps[snaps["t"].between(t0 - delay - window + 1, t0 - delay)]
     a_static = _intercept(ref, p, y)
     log = []
+    shifts: dict[int, float] = {}
+
+    def early_shift(u: int) -> float:
+        if u not in shifts:
+            w = snaps[snaps["t"].between(u - early_delay - early_window + 1, u - early_delay)]
+            shifts[u] = _intercept(w, p_early, y_early)
+        return shifts[u]
+
+    gap = early_delay + (early_window - 1) / 2
     for t in test_months:
         cur = snaps[snaps["t"] == t]
         if cur.empty:
@@ -179,8 +195,15 @@ def recalibrate_early(snaps: pd.DataFrame, test_months, mode: str, delay: int = 
         zstat = (h[y_early].sum() - pe.sum()) / np.sqrt(max((pe * (1 - pe)).sum(), 1e-12)) if len(h) else 0.0
         s_psi = _psi(ref[p], cur[p]) if len(ref) else np.nan
         fired = {"early": True, "trig_z": abs(zstat) > z, "trig_psi": bool(s_psi > psi_max),
-                 "early_hz": True, "trig_z_hz": abs(zstat) > z}[mode]
-        if mode.endswith("_hz") and fired:
+                 "early_hz": True, "trig_z_hz": abs(zstat) > z,
+                 "trend": True, "trig_trend": abs(zstat) > z}[mode]
+        if mode in TREND_MODES and fired:
+            lags = np.arange(trend_months)
+            a_lag = np.array([early_shift(t - j) for j in lags])   # window of t - j ends at t - j - 3 <= t - 3
+            slope = -np.polyfit(lags, a_lag, 1)[0]
+            a = a_lag[0] + slope * gap
+            out.loc[cur.index] = expit(_z(cur[p]) + a)
+        elif mode.endswith("_hz") and fired:
             hi, ci = snaps.index.get_indexer(h.index), snaps.index.get_indexer(cur.index)
             a = _hazard_shift(hz[0][hi], hz[1][hi], h[y_early].to_numpy(float))
             out.loc[cur.index] = shifted_pd(hz[0][ci], hz[1][ci], a, 12)
