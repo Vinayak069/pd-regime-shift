@@ -1,0 +1,67 @@
+{
+  "experiment": "crisis_2008",
+  "seeds": [
+    11,
+    22,
+    33,
+    44,
+    55
+  ],
+  "models": [
+    "M1"
+  ],
+  "n_boot": 1000,
+  "runtime_s": 4151,
+  "per_seed": {
+    "11": {
+      "train_pairs": 3997352,
+      "train_loans": 121687,
+      "train_defaults": 3934,
+      "train_prepays": 138127,
+      "val_rows": 367634,
+      "snapshot_rows": 570000,
+      "test_snapshot_rows": 288000,
+      "train_vintages": null
+    },
+    "22": {
+      "train_pairs": 3997782,
+      "train_loans": 121551,
+      "train_defaults": 3925,
+      "train_prepays": 138064,
+      "val_rows": 366933,
+      "snapshot_rows": 570000,
+      "test_snapshot_rows": 288000,
+      "train_vintages": null
+    },
+    "33": {
+      "train_pairs": 4003569,
+      "train_loans": 121567,
+      "train_defaults": 3939,
+      "train_prepays": 138052,
+      "val_rows": 366874,
+      "snapshot_rows": 570000,
+      "test_snapshot_rows": 288000,
+      "train_vintages": null
+    },
+    "44": {
+      "train_pairs": 3998294,
+      "train_loans": 121477,
+      "train_defaults": 3913,
+      "train_prepays": 138081,
+      "val_rows": 368843,
+      "snapshot_rows": 570000,
+      "test_snapshot_rows": 288000,
+      "train_vintages": null
+    },
+    "55": {
+      "train_pairs": 3997249,
+      "train_loans": 121579,
+      "train_defaults": 3919,
+      "train_prepays": 138106,
+      "val_rows": 367062,
+      "snapshot_rows": 570000,
+      "test_snapshot_rows": 288000,
+      "train_vintages": null
+    }
+  }
+}
