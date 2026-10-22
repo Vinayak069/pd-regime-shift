@@ -67,7 +67,15 @@ def run(name: str, n_seeds: int = 5, n_boot: int = 1000, models_: tuple = ("B0",
     window = c["models"]["recalibration"]["window_months"]
     seeds = c["models"]["seeds"][:n_seeds]
     rows, monthly, trig, boot, info = [], [], [], [], {}
+    done: set = set()
+    if (out / "robustness.csv").exists():      # resume: keep seeds already finished
+        prev = pd.read_csv(out / "robustness.csv")
+        rows = prev.to_dict("records")
+        done = set(prev["seed"])
     for seed in seeds:
+        if seed in done:
+            log.info("%s seed %d already done, skipping", name, seed)
+            continue
         t0 = time.time()
         ctx = prepare(name, c, seed=seed, **prep_kw)
         snaps, T0 = ctx.snaps, ctx.T0
@@ -116,11 +124,12 @@ def run(name: str, n_seeds: int = 5, n_boot: int = 1000, models_: tuple = ("B0",
                                 boot.append(dict(label=lab, method=method, mode=mode, stat=stat,
                                                  **metrics.cluster_bootstrap(db, fn, n_boot=n_boot, seed=seed)))
             log.info("%s seed %d %s done (%.0fs since seed start)", name, seed, key, time.time() - t0)
+        if seed == seeds[0]:                    # first-seed extras are written as soon as they exist
+            pd.concat(monthly).to_csv(out / "robustness_monthly.csv", index=False)
+            pd.concat(trig).to_csv(out / "robustness_triggers.csv", index=False)
+            if boot:
+                pd.DataFrame(boot).to_csv(out / "robustness_bootstrap.csv", index=False)
         pd.DataFrame(rows).to_csv(out / "robustness.csv", index=False)   # partial results survive a crash
-    pd.concat(monthly).to_csv(out / "robustness_monthly.csv", index=False)
-    pd.concat(trig).to_csv(out / "robustness_triggers.csv", index=False)
-    if boot:
-        pd.DataFrame(boot).to_csv(out / "robustness_bootstrap.csv", index=False)
     (out / "robustness_info.json").write_text(json.dumps(dict(
         experiment=name, seeds=seeds, models=list(models_), n_boot=n_boot,
         runtime_s=round(time.time() - t_start), per_seed=info), indent=2, default=str))
